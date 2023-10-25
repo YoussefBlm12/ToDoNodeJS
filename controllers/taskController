@@ -1,0 +1,70 @@
+const Task = require("../models/task");
+
+const getAllTasks = async(req, res) => {
+    try {
+        const tasks = await Task.find();
+        res.json(tasks);
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+
+};
+
+const addTask = async (req, res) => {
+    const taskData = req.body;
+    //console.log('Task is : ',taskData);
+    const title = taskData.title;
+    const description = taskData.description;
+    const dueDate = taskData.dueDate;
+    const isCompleted = taskData.isCompleted;
+    const time = taskData.time;
+    const repeat = taskData.repeat;
+    const color = taskData.color;
+    try {
+        const newTask = new Task({
+            title,
+            description,
+            dueDate,
+            isCompleted,
+            time,
+            repeat,
+            color,
+        });
+        await newTask.save();
+        res.status(201).json(newTask);
+    } catch (error) {
+        console.error('Erreur lors de la création de tache :', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+};
+
+const updateTask = async(req, res) => {
+    const taskId = req.params.id;
+    const isComleted = req.body;
+    try {
+        const task = await Task.findByIdAndUpdate(taskId, isComleted, { new: true });
+        res.json(task);
+        console.log("Task Updated");
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+};
+
+const deleteTask = async(req, res) => {
+    const taskId = req.params.id;
+    try {
+        await Task.findByIdAndRemove(taskId);
+        res.json({ message: 'La Tache a eté supprimé' });
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
+};
+
+
+
+module.exports = {
+    getAllTasks,
+    addTask,
+    updateTask,
+    deleteTask
+};
